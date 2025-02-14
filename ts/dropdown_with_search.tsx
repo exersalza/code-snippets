@@ -4,6 +4,7 @@ import { Icons } from "./Icons";
 interface Props {
   values: string[],
   disabled?: boolean,
+  placeholder?: string,
   callback: (value: string) => void;
 }
 
@@ -67,14 +68,14 @@ export function Dropdown(props: Props) {
 
 
   return (
-    <div className={`w-46 max-h-60 z-100 bg-gray-100 relative ${states.open ? "rounded-t-lg" : "rounded-lg" } select-none transition-all dropdown-parent`} ref={bodyRef}>
+    <div className={`w-46 max-h-60 z-100 bg-gray-100 relative ${states.open ? "rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
       <div className={"flex place-items-center "} onClick={() => {
         setStates((prev) => ({ ...prev, open: true }))
       }}>
         <input
           onInput={inputHandler}
           className={"px-1 py-1 outline-none w-8/9"}
-          placeholder={"Search..."}
+          placeholder={props.placeholder ?? "Search..."}
           value={states.lastSelectedValue}
         />
         <p onClick={(e) => {
