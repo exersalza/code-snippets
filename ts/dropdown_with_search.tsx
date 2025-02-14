@@ -10,6 +10,7 @@ type DropdownStates = {
   open: boolean,
   values: string[],
   searchReg: RegExp,
+  lastSelectedValue: string
 }
 
 export function Dropdown(props: Props) {
@@ -17,20 +18,24 @@ export function Dropdown(props: Props) {
     open: false,
     values: props.values,
     searchReg: /.*/g,
+    lastSelectedValue: ""
   })
 
   let itemsRef = useRef<HTMLDivElement>(null);
   let bodyRef = useRef<HTMLDivElement>(null);
 
-  const valueClickHandler = (v: string) => {
-
-  }
 
   const inputHandler = (e: InputEvent) => {
     const value = (e.target as HTMLInputElement).value;
     const reg = new RegExp(`.*(${value}).*`, "gi");
 
-    setStates((prev) => ({ ...prev, values: props.values.filter((i) => { reg.lastIndex = 0; return reg.test(i) }) }))
+    setStates((prev) => ({
+      ...prev, 
+      values: props.values.filter((i) => {
+        reg.lastIndex = 0; return reg.test(i)
+      }),
+      lastSelectedValue: value
+    }))
   }
 
   const outsideClickHandler = (e: MouseEvent) => {
@@ -39,6 +44,11 @@ export function Dropdown(props: Props) {
     if (!!bodyRef.current && !bodyRef.current.contains(target)) {
       setStates((prev) => ({ ...prev, open: false }));
     }
+  }
+
+  function cb(value: string) {
+    props.callback(value);
+    setStates((prev) => ({...prev, open: false, lastSelectedValue: value}));
   }
 
   useEffect(() => {
@@ -58,7 +68,9 @@ export function Dropdown(props: Props) {
         <input
           onInput={inputHandler}
           className={"px-1 py-1 outline-none w-8/9"}
-          placeholder={"Search..."} />
+          placeholder={"Search..."} 
+          value={states.lastSelectedValue}
+        />
         <p onClick={(e) => {
           e.stopPropagation();
           setStates((prev) => ({ ...prev, open: !prev.open }))
@@ -71,7 +83,11 @@ export function Dropdown(props: Props) {
         ref={itemsRef}
         style={{ height: `calc(${states.open ? props.values.length : 0} * 1.5rem)` }}>
         {states.values.map((value) => {
-          return <p onClick={() => valueClickHandler(value)}>{value}</p>
+          return <p
+            onClick={() => cb(value)}
+            className={"cursor-pointer hover:bg-gray-200 rounded"}>
+            {value}
+          </p>
         })}
       </div>
     </div>
