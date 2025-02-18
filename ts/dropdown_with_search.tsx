@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from "preact/hooks";
 import { Icons } from "./Icons";
 
 interface Props {
+  id?: "",
   values: string[],
   disabled?: boolean,
   placeholder?: string,
   addEmptyValue?: boolean,
-  callback: (value: string) => void;
+  inputRef?: any,
+  callback: (value: string) => void,
 }
 
 type DropdownStates = {
@@ -17,6 +19,19 @@ type DropdownStates = {
   isSearching: boolean
 }
 
+/**
+ *
+ *
+ * # Arguments
+ *
+ * - id?: string,
+ * - values: string[],
+ * - disabled?: boolean,
+ * - placeholder?: string,
+ * - addEmptyValue?: boolean,
+ * - callback: (value: string) => void,
+ *
+ * */
 export function Dropdown(props: Props) {
   const [states, setStates] = useState<DropdownStates>({
     open: false,
@@ -81,7 +96,7 @@ export function Dropdown(props: Props) {
 
 
   return (
-    <div className={`w-46 max-h-60 z-100 bg-gray-100 relative ${states.open && states.values.length !== 0 ? "rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
+    <div id={props.id} className={`w-46 max-h-60 z-100 bg-gray-100 relative ${states.open && states.values.length !== 0 ? "z-101 rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
       <div className={"flex place-items-center "} onClick={() => {
         setStates((prev) => ({ ...prev, open: true }))
       }}>
@@ -102,17 +117,17 @@ export function Dropdown(props: Props) {
       <div className={`px-1 max-h-49 w-full absolute flex flex-col transition-all overflow-auto good-scrollbar rounded-b-lg scrollbar scrollbar-thumb-zinc-400 bg-gray-100 duration-100`}
         ref={itemsRef}
         style={{
-          height: `calc(${states.open ? Math.min(states.values.length, 9) : 0} * 1.5rem)`,
+          height: `calc(${states.open ? Math.min((props.addEmptyValue ? states.values.length + 1 : states.values.length), 9) : 0} * 1.5rem)`,
           top: '100%',
           visibility: states.open ? 'visible' : 'hidden',
           opacity: states.open ? 1 : 0,
         }}>
         {
-          props.addEmptyValue 
-            && <p
+          props.addEmptyValue
+          && <p
             onClick={() => cb("")}
             className={"cursor-pointer hover:bg-gray-200 rounded"}>
-              -
+            -
           </p>
 
         }
