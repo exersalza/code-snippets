@@ -5,6 +5,7 @@ interface Props {
   values: string[],
   disabled?: boolean,
   placeholder?: string,
+  addEmptyValue?: boolean,
   callback: (value: string) => void;
 }
 
@@ -12,7 +13,8 @@ type DropdownStates = {
   open: boolean,
   values: string[],
   searchReg: RegExp,
-  lastSelectedValue: string
+  lastSelectedValue: string,
+  isSearching: boolean
 }
 
 export function Dropdown(props: Props) {
@@ -20,14 +22,23 @@ export function Dropdown(props: Props) {
     open: false,
     values: props.values,
     searchReg: /.*/g,
-    lastSelectedValue: ""
+    lastSelectedValue: "",
+    isSearching: false
   })
 
   let itemsRef = useRef<HTMLDivElement>(null);
   let bodyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setStates((prev) => ({ ...prev, values: props.values }));
+    setStates((prev) => ({
+      ...prev,
+      values:
+        prev.isSearching ?
+          props.values.filter((i) => {
+            prev.searchReg.lastIndex = 0;
+            return prev.searchReg.test(i);
+          }) : props.values,
+    }));
   }, [props.values])
 
 
@@ -37,6 +48,8 @@ export function Dropdown(props: Props) {
 
     setStates((prev) => ({
       ...prev,
+      isSearching: true,
+      searchReg: reg,
       values: props.values.filter((i) => {
         reg.lastIndex = 0; return reg.test(i)
       }),
@@ -55,7 +68,7 @@ export function Dropdown(props: Props) {
 
   function cb(value: string) {
     props.callback(value);
-    setStates((prev) => ({ ...prev, open: false, lastSelectedValue: value }));
+    setStates((prev) => ({ ...prev, isSearching: false, open: false, lastSelectedValue: value, values: props.values }));
   }
 
   useEffect(() => {
@@ -68,13 +81,13 @@ export function Dropdown(props: Props) {
 
 
   return (
-    <div className={`w-46 max-h-60 z-100 bg-gray-100 relative ${states.open ? "rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
+    <div className={`w-46 max-h-60 z-100 bg-gray-100 relative ${states.open && states.values.length !== 0 ? "rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
       <div className={"flex place-items-center "} onClick={() => {
         setStates((prev) => ({ ...prev, open: true }))
       }}>
         <input
           onInput={inputHandler}
-          className={"px-1 py-1 outline-none w-8/9"}
+          className={"p-1 outline-none w-8/9"}
           placeholder={props.placeholder ?? "Search..."}
           value={states.lastSelectedValue}
         />
@@ -89,11 +102,20 @@ export function Dropdown(props: Props) {
       <div className={`px-1 max-h-49 w-full absolute flex flex-col transition-all overflow-auto good-scrollbar rounded-b-lg scrollbar scrollbar-thumb-zinc-400 bg-gray-100 duration-100`}
         ref={itemsRef}
         style={{
-          height: `calc(${states.open ? Math.min(props.values.length, 9) : 0} * 1.5rem)`,
+          height: `calc(${states.open ? Math.min(states.values.length, 9) : 0} * 1.5rem)`,
           top: '100%',
           visibility: states.open ? 'visible' : 'hidden',
           opacity: states.open ? 1 : 0,
         }}>
+        {
+          props.addEmptyValue 
+            && <p
+            onClick={() => cb("")}
+            className={"cursor-pointer hover:bg-gray-200 rounded"}>
+              -
+          </p>
+
+        }
         {states.values.map((value) => {
           return <p
             onClick={() => cb(value)}
