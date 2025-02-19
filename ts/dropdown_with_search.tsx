@@ -96,9 +96,9 @@ export function Dropdown(props: Props) {
 
 
   return (
-    <div id={props.id} className={`w-46 max-h-60 z-100 bg-gray-100 relative ${states.open && states.values.length !== 0 ? "z-101 rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
+    <div id={props.id} className={`w-46 max-h-60 z-100 bg-gray-200 relative ${states.open && states.values.length !== 0 ? "z-101 rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
       <div className={"flex place-items-center "} onClick={() => {
-        setStates((prev) => ({ ...prev, open: true }))
+        setStates((prev) => ({ ...prev, open: props.values.length !== 0 && true }))
       }}>
         <input
           onInput={inputHandler}
@@ -108,7 +108,7 @@ export function Dropdown(props: Props) {
         />
         <p onClick={(e) => {
           e.stopPropagation();
-          setStates((prev) => ({ ...prev, open: !prev.open }))
+          setStates((prev) => ({ ...prev, open: props.values.length !== 0 && !prev.open }))
         }}>
 
           {Icons.chevron_down}
