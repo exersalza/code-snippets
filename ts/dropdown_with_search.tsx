@@ -8,6 +8,7 @@ interface Props {
   placeholder?: string,
   addEmptyValue?: boolean,
   inputRef?: any,
+  inputValue?: string,
   callback: (value: string) => void,
 }
 
@@ -83,7 +84,13 @@ export function Dropdown(props: Props) {
 
   function cb(value: string) {
     props.callback(value);
-    setStates((prev) => ({ ...prev, isSearching: false, open: false, lastSelectedValue: value, values: props.values }));
+    setStates((prev) => ({
+      ...prev,
+      isSearching: false,
+      open: false,
+      lastSelectedValue: value,
+      values: props.values
+    }));
   }
 
   useEffect(() => {
@@ -104,7 +111,7 @@ export function Dropdown(props: Props) {
           onInput={inputHandler}
           className={"p-1 outline-none w-8/9"}
           placeholder={props.placeholder ?? "Search..."}
-          value={states.lastSelectedValue}
+          value={props.inputValue ?? states.lastSelectedValue}
         />
         <p onClick={(e) => {
           e.stopPropagation();
