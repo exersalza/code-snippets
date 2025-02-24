@@ -36,4 +36,6 @@ def main [path: string, e1: string, e2?: string] {
       wt -d $"($full_path_e2)" "nu.exe" "-c" $cmd2
     }
 
+    let path = [$dev_path $path] | path join
+    wt -d $"($path)"
 }
