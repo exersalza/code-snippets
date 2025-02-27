@@ -10,6 +10,8 @@ interface Props {
   inputRef?: any,
   inputValue?: string,
   callback: (value: string) => void,
+  className?: string,
+  disabledChilds?: string[]
 }
 
 type DropdownStates = {
@@ -103,13 +105,19 @@ export function Dropdown(props: Props) {
 
 
   return (
-    <div id={props.id} className={`w-46 max-h-60 z-100 bg-gray-200 relative ${states.open && states.values.length !== 0 ? "z-101 rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent`} ref={bodyRef}>
+    <div id={props.id} className={`w-46 max-h-60 z-100 bg-gray-200/80 relative ${states.open && states.values.length !== 0 ? "z-101 rounded-t-lg" : "rounded-lg"} select-none transition-all dropdown-parent ${props.className}`} ref={bodyRef}>
       <div className={"flex place-items-center "} onClick={() => {
         setStates((prev) => ({ ...prev, open: props.values.length !== 0 && true }))
       }}>
         <input
           onInput={inputHandler}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              cb(e.target.value)
+            }
+          }}
           className={"p-1 outline-none w-8/9"}
+          disabled={props.disabled}
           placeholder={props.placeholder ?? "Search..."}
           value={props.inputValue ?? states.lastSelectedValue}
         />
@@ -139,11 +147,12 @@ export function Dropdown(props: Props) {
 
         }
         {states.values.map((value) => {
-          return <p
+          return <button
             onClick={() => cb(value)}
-            className={"cursor-pointer hover:bg-gray-200 rounded"}>
+            disabled={( props.disabledChilds ?? [] ).includes(value)}
+            className={"text-left disabled:text-gray-400 not-disabled:hover:bg-gray-200  rounded"}>
             {value}
-          </p>
+          </button>
         })}
       </div>
     </div>
