@@ -63,7 +63,7 @@ def count_types(file_type: str, lines: list[str]):
     pass
 
 
-def count_lines(path: str):
+def count_lines(path: str) -> int:
     lines = 0
 
     with open(path, "r") as f:
@@ -72,7 +72,12 @@ def count_lines(path: str):
 
         found_comments.append(count_comments(file_type, f_lines))
         count_types(file_type, f_lines)
-        lines = len(f_lines)
+
+        # filter out empty lines
+        for i in f_lines: 
+            if len(i.strip()) != 0:
+                lines += 1
+
 
     loc[path] = lines
     return lines
