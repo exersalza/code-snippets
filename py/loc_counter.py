@@ -78,7 +78,6 @@ def count_lines(path: str) -> int:
             if len(i.strip()) != 0:
                 lines += 1
 
-
     loc[path] = lines
     return lines
 
