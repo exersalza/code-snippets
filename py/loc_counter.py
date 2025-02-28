@@ -4,26 +4,75 @@ import re
 import operator
 import random
 
-filter = (".rs", ".ts", ".js", ".tsx", ".jsx", ".py", ".html", ".css")
-blacklist = ["venv", "target", "dist", "node_modules", ".git"]
+FILTER = (".rs", ".ts", ".js", ".tsx", ".jsx", ".py", ".html", ".css")
+BLACKLIST = ["venv", "target", "dist", "node_modules", ".git"]
+
+COMMENT_STRING_TRANS = {
+    "tsx": "rs",
+    "ts": "rs",
+    "jsx": "rs",
+    "c": "rs",
+    "cpp": "rs",
+}
+
+COMMENT_STRINGS = {
+    "py": [
+        "#",
+    ],
+    "rs": [
+        "//",
+        # /// will also get trigered when we test for //
+        "/*", # same thing here, this will also trigger for /**
+        "*",
+    ],
+    "html": ["<!--", "-->"],
+    "css": [
+        "#"
+    ]
+}
+
 loc = {}
+found_comments = []
+
 
 # TODO: doc counter
-
 def form_blacklist() -> str:
     ret = ".*("
 
-    for i in blacklist:
+    for i in BLACKLIST:
         ret += f"({i})|"
 
     return ret[: len(ret) - 1] + ").*"
+
+
+def count_comments(file_type: str, lines: list[str]) -> int:
+    found = 0
+    comments = {}
+    if file_type in COMMENT_STRINGS.keys():
+        comments = COMMENT_STRINGS[file_type]
+    else:
+        comments = COMMENT_STRINGS[COMMENT_STRING_TRANS[file_type]]
+
+    for i in lines:
+        for j in comments:
+            found += i.strip().startswith(j)
+
+    return found
+
+def count_types(file_type: str, lines: list[str]):
+    pass
 
 
 def count_lines(path: str):
     lines = 0
 
     with open(path, "r") as f:
-        lines = len(f.readlines())
+        file_type = path.split(".")[-1]
+        f_lines = f.readlines()
+
+        found_comments.append(count_comments(file_type, f_lines))
+        count_types(file_type, f_lines)
+        lines = len(f_lines)
 
     loc[path] = lines
     return lines
@@ -47,7 +96,7 @@ def main() -> int:
 
         files = i[2]
         for j in files:
-            if not j.endswith(filter) or "config" in j:
+            if not j.endswith(FILTER) or "config" in j:
                 continue
             count_lines(f"{path}\\{j}")
 
@@ -56,7 +105,8 @@ def main() -> int:
     for _, value in loc.items():
         count += value
 
-    print(f"{count} Lines of code\n")
+    print(f"{count} Lines of code")
+    print(f"{sum(found_comments)} Comments\n")
     print("Top 3 Storage hogs: ")
 
     for i in find_biggest():
