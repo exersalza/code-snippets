@@ -10,6 +10,7 @@ BLACKLIST = ["venv", "target", "dist", "node_modules", ".git"]
 COMMENT_STRING_TRANS = {
     "tsx": "rs",
     "ts": "rs",
+    "js": "rs",
     "jsx": "rs",
     "c": "rs",
     "cpp": "rs",
@@ -34,8 +35,6 @@ COMMENT_STRINGS = {
 loc = {}
 found_comments = []
 
-
-# TODO: doc counter
 def form_blacklist() -> str:
     ret = ".*("
 
