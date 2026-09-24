@@ -12,14 +12,15 @@ def main():
         print("Syntax: py clean.py [project]")
         return
 
-    for path in glob.glob("./**/"):
-        server = "server";
+    for path in glob.glob("./**/Cargo.toml", recursive=True):
 
-        if exists(path + "backend"):
-            server = "backend"
+        server = path.replace("Cargo.toml", "")
+        print(f"Starting {server}")
 
-        print(path + server)
-        f = subprocess.run(f"cd {path + server} && cargo clean", shell=True)
+        f = subprocess.run(f"cd {server} && cargo clean", shell=True)
+        print(f"Finished {server}")
+
+
 
 if __name__ == "__main__":
     exit(main())
